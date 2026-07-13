@@ -27,12 +27,12 @@ export function isPositiveNumber(value: number | undefined): boolean {
 }
 
 export function isValidWorkoutDate(date: string): boolean {
-  return Boolean(date && !Number.isNaN(Date.parse(`${date}T00:00:00`)))
+  return Boolean(date && !Number.isNaN(Date.parse(date)))
 }
 
-export function isValidHeartRate(value: number | undefined): boolean {
-  if (value === undefined) return true
-  return value >= MIN_REASONABLE_HEART_RATE && value <= MAX_REASONABLE_HEART_RATE
+export function isValidHeartRate(value: unknown): boolean {
+  if (value === undefined || value === null || value === '') return true
+  return typeof value === 'number' && Number.isFinite(value) && value >= MIN_REASONABLE_HEART_RATE && value <= MAX_REASONABLE_HEART_RATE
 }
 
 export function isValidRpe(value: number | undefined): boolean {
@@ -72,66 +72,44 @@ function validateHeartRate(averageHeartRate: number | undefined, maxHeartRate: n
   }
 }
 
-function validateEffort(value: number | undefined, label: string, errors: string[]) {
-  if (value === undefined) return
-  if (!isValidRpe(value)) {
-    errors.push(`${label} must be between ${MIN_PERCEIVED_EFFORT} and ${MAX_PERCEIVED_EFFORT}.`)
+function validateDate(date: string, errors: string[]) {
+  if (!isValidWorkoutDate(date)) {
+    errors.push('Start date and time are required.')
   }
 }
 
-function validateDate(date: string, errors: string[]) {
-  if (!isValidWorkoutDate(date)) {
-    errors.push('Date is required.')
+function validateCalories(value: unknown, errors: string[]) {
+  if (value !== undefined && value !== null && value !== '' && (typeof value !== 'number' || !Number.isFinite(value) || value < 0)) {
+    errors.push('Calories cannot be negative.')
   }
+}
+
+function validateBaseWorkout(
+  input: StrengthWorkoutInput | BasketballWorkoutInput,
+  errors: string[],
+) {
+  validateDate(input.startedAt, errors)
+  requirePositive(input.durationMinutes, 'Duration', errors)
+  validateCalories(input.calories, errors)
+  validateHeartRate(input.averageHeartRate, input.maxHeartRate, errors)
 }
 
 export function validateRunningWorkout(input: RunningWorkoutInput): ValidationResult {
   const errors: string[] = []
-  validateDate(input.date, errors)
-  requirePositive(input.durationMinutes, 'Duration', errors)
+  validateBaseWorkout(input, errors)
   requirePositive(input.distanceKm, 'Distance', errors)
-  validateHeartRate(input.averageHeartRate, input.maxHeartRate, errors)
-  validateEffort(input.perceivedEffort, 'Effort', errors)
   return result(errors)
 }
 
 export function validateStrengthWorkout(input: StrengthWorkoutInput): ValidationResult {
   const errors: string[] = []
-  validateDate(input.date, errors)
-  requirePositive(input.durationMinutes, 'Duration', errors)
-  requirePositive(input.sets, 'Sets', errors)
-  requirePositive(input.reps, 'Reps', errors)
-  requirePositive(input.weightKg, 'Weight', errors)
-
-  if (!isValidName(input.exerciseName)) {
-    errors.push('Exercise name is required.')
-  }
-
-  if (!isValidName(input.muscleGroup)) {
-    errors.push('Muscle group is required.')
-  }
-
-  validateHeartRate(input.averageHeartRate, input.maxHeartRate, errors)
-  validateEffort(input.perceivedEffort, 'Effort', errors)
+  validateBaseWorkout(input, errors)
   return result(errors)
 }
 
 export function validateBasketballWorkout(input: BasketballWorkoutInput): ValidationResult {
   const errors: string[] = []
-  validateDate(input.date, errors)
-  requirePositive(input.durationMinutes, 'Duration', errors)
-
-  if (input.highIntensityMinutes < 0) {
-    errors.push('High intensity minutes cannot be negative.')
-  }
-
-  if (input.highIntensityMinutes > input.durationMinutes) {
-    errors.push('High intensity minutes cannot exceed duration.')
-  }
-
-  validateHeartRate(input.averageHeartRate, input.maxHeartRate, errors)
-  validateEffort(input.perceivedEffort, 'Effort', errors)
-  validateEffort(input.perceivedPerformance, 'Performance', errors)
+  validateBaseWorkout(input, errors)
   return result(errors)
 }
 

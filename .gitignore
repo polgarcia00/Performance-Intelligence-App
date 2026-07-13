@@ -9,3 +9,6 @@ coverage/
 *.local
 .env
 uploads/
+backups/
+backups/*.sql
+*.dump

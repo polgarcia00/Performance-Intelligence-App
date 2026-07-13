@@ -27,7 +27,7 @@ Pinia should cache only screen state and fetched API responses. PostgreSQL remai
 
 ## Import Rules
 
-Production import is workout-only. SPORT.csv and Zepp ZIP files containing SPORT.csv are supported. Non-workout Zepp files are ignored with warnings and are not persisted.
+Production import is workout-only. Upload SPORT.csv or another Zepp workout CSV file. Non-workout Zepp files are ignored with warnings and are not persisted.
 
 ## Analysis Ownership
 

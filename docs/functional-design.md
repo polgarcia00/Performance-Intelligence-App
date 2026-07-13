@@ -20,13 +20,13 @@ It is not a Zepp replacement and not a health dashboard. Zepp owns sleep, activi
 - Workout Details: keeps read-only Zepp objective data separate from editable journal context.
 - Performance: explores running, strength, basketball, records, and trends from backend analysis.
 - Weekly Review: presents coaching-style reflections from imported workouts and journal context.
-- Settings / Data Import: imports SPORT.csv or Zepp ZIPs containing SPORT.csv, shows preview/history, and exposes fallback tools.
+- Settings / Data Import: imports SPORT.csv from a Zepp workout export, shows preview/history, and exposes fallback tools.
 
 ## Data Boundaries
 
 Objective Zepp data is read-only in the journal flow. Journal edits never overwrite imported duration, distance, calories, pace, heart-rate fields, source sport code, source fingerprint, or import batch references.
 
-Manual workout entry remains only as a fallback/debug tool for workouts missing from Zepp. It is secondary to the import workflow.
+Manual workout entry remains a secondary fallback for workouts missing from Zepp. These entries are persisted with `source = manual` and follow the same enrichment and analysis workflow as imported workouts.
 
 ## Product Principles
 

@@ -6,45 +6,54 @@ import {
 } from '@/utils/workoutFactories'
 
 describe('workoutFactories', () => {
-  it('creates linked running workout and session records', () => {
-    const { workout, session } = createRunningWorkout({
-      date: '2026-07-07',
+  it('creates a manual running API payload in backend units', () => {
+    const workout = createRunningWorkout({
+      startedAt: '2026-07-07T10:00',
       durationMinutes: 30,
       distanceKm: 5,
+      calories: 452,
     })
 
-    expect(workout.type).toBe('running')
-    expect(session.workoutId).toBe(workout.id)
-    expect(session.paceSecondsPerKm).toBe(360)
+    expect(workout).toEqual({
+      sport: 'running',
+      startedAt: '2026-07-07T10:00',
+      durationSeconds: 1800,
+      distanceMeters: 5000,
+      calories: 452,
+      averageHeartRate: undefined,
+      maxHeartRate: undefined,
+    })
   })
 
-  it('creates strength sets linked to the generated workout', () => {
-    const { workout, session } = createStrengthWorkout({
-      date: '2026-07-07',
+  it('creates a manual strength API payload without Zepp-only fields', () => {
+    const workout = createStrengthWorkout({
+      startedAt: '2026-07-07T18:00',
       durationMinutes: 45,
-      exerciseName: 'Squat',
-      muscleGroup: 'Legs',
-      sets: 3,
-      reps: 5,
-      weightKg: 80,
+      averageHeartRate: 112,
     })
 
-    expect(workout.type).toBe('strength')
-    expect(session.exercises[0]?.workoutId).toBe(workout.id)
-    expect(session.exercises[0]?.sets).toHaveLength(3)
+    expect(workout).toMatchObject({
+      sport: 'strength',
+      durationSeconds: 2700,
+      averageHeartRate: 112,
+    })
+    expect(workout).not.toHaveProperty('sourceRowFingerprint')
+    expect(workout).not.toHaveProperty('importBatchId')
   })
 
-  it('creates basketball sessions linked to the generated workout', () => {
-    const { workout, session } = createBasketballWorkout({
-      date: '2026-07-07',
+  it('creates a manual basketball API payload', () => {
+    const workout = createBasketballWorkout({
+      startedAt: '2026-07-07T19:00',
       durationMinutes: 70,
-      sessionType: 'pickup',
-      highIntensityMinutes: 20,
-      perceivedPerformance: 8,
+      calories: 640,
+      maxHeartRate: 184,
     })
 
-    expect(workout.type).toBe('basketball')
-    expect(session.workoutId).toBe(workout.id)
-    expect(session.courtTimeMinutes).toBe(70)
+    expect(workout).toMatchObject({
+      sport: 'basketball',
+      durationSeconds: 4200,
+      calories: 640,
+      maxHeartRate: 184,
+    })
   })
 })

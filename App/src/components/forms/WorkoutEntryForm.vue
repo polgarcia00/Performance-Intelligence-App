@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import BaseButton from '@/components/base/BaseButton.vue'
 import BaseTabs from '@/components/base/BaseTabs.vue'
 import BasketballWorkoutForm from './BasketballWorkoutForm.vue'
 import RunningWorkoutForm from './RunningWorkoutForm.vue'
@@ -8,6 +10,7 @@ import { useWorkoutSubmission } from '@/composables/useWorkoutSubmission'
 
 const activeType = ref('running')
 const wasSaved = ref(false)
+const createdWorkoutId = ref('')
 const errorMessage = ref('')
 const { submitRunningWorkout, submitStrengthWorkout, submitBasketballWorkout } = useWorkoutSubmission()
 
@@ -17,12 +20,14 @@ const tabs = [
   { label: 'Basketball', value: 'basketball' },
 ]
 
-async function markSaved(action: () => Promise<void>) {
+async function markSaved(action: () => Promise<{ id: string }>) {
   errorMessage.value = ''
   wasSaved.value = false
+  createdWorkoutId.value = ''
 
   try {
-    await action()
+    const workout = await action()
+    createdWorkoutId.value = workout.id
     wasSaved.value = true
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Unable to save workout.'
@@ -34,8 +39,11 @@ async function markSaved(action: () => Promise<void>) {
   <div class="entry-form">
     <BaseTabs v-model="activeType" :tabs="tabs" />
     <p v-if="wasSaved" role="status" class="form-alert form-alert--success">
-      Saved. Your performance dashboard has been updated.
+      Saved to your journal. The objective details are now stored in PostgreSQL.
     </p>
+    <RouterLink v-if="createdWorkoutId" :to="`/workouts/${createdWorkoutId}`">
+      <BaseButton variant="secondary">Review and enrich workout</BaseButton>
+    </RouterLink>
     <p v-if="errorMessage" role="alert" class="form-alert form-alert--error">{{ errorMessage }}</p>
 
     <RunningWorkoutForm

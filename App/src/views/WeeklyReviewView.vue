@@ -17,11 +17,11 @@ onMounted(() => {
 
 <template>
   <PageContainer title="Weekly Review" eyebrow="Reflect on the week" description="A coaching-style reflection on what improved, what declined, what patterns appeared, and what should change next week.">
-    <WeeklyFocusCard :focus="weeklyReport?.suggestedFocus ?? 'Review imported workouts to generate your weekly focus.'" />
+    <WeeklyFocusCard :focus="weeklyReport?.suggestedFocus ?? 'Review journal workouts to generate your weekly focus.'" />
 
     <BaseCard title="Week story" subtitle="Facts from Zepp, meaning from the journal">
       <div class="summary-list">
-        <p>{{ weeklyReport?.workoutsCompleted ?? 0 }} imported workouts · {{ formatDuration(weeklyReport?.totalTrainingTimeMinutes ?? 0) }} training time</p>
+        <p>{{ weeklyReport?.workoutsCompleted ?? 0 }} workouts · {{ formatDuration(weeklyReport?.totalTrainingTimeMinutes ?? 0) }} training time</p>
         <p>{{ weeklyReport?.comparisonToPreviousWeek }}</p>
         <p>{{ weeklyReport?.weekStorySummary }}</p>
       </div>

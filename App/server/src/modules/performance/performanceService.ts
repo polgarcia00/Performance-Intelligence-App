@@ -166,8 +166,7 @@ export class PerformanceService {
 
   async records(userId = env.defaultUserId): Promise<any> {
     return transaction(async (client) => {
-      const [longestRun, fastestRun, longestWorkout, bestWeight, bestOneRepMax, basketballPerformance, basketballShooting, basketballExplosiveness, longestBasketball] = await Promise.all([
-        client.query(
+      const recordQueries = [
           `
           select w.id as workout_id, 'running' as sport, 'Longest run' as metric_name, w.distance_meters as value, 'm' as unit, w.started_at as achieved_at
           from workouts w
@@ -175,9 +174,6 @@ export class PerformanceService {
           order by w.distance_meters desc nulls last
           limit 1
           `,
-          [userId],
-        ),
-        client.query(
           `
           select w.id as workout_id, 'running' as sport, 'Fastest comparable pace' as metric_name, m.pace_seconds_per_km as value, 's/km' as unit, w.started_at as achieved_at
           from workouts w
@@ -187,9 +183,6 @@ export class PerformanceService {
           order by m.pace_seconds_per_km asc
           limit 1
           `,
-          [userId],
-        ),
-        client.query(
           `
           select w.id as workout_id, w.sport, 'Longest workout' as metric_name, w.duration_seconds as value, 's' as unit, w.started_at as achieved_at
           from workouts w
@@ -197,9 +190,6 @@ export class PerformanceService {
           order by w.duration_seconds desc
           limit 1
           `,
-          [userId],
-        ),
-        client.query(
           `
           select w.id as workout_id, 'strength' as sport, concat('Highest weight - ', e.name) as metric_name, s.weight_kg as value, 'kg' as unit, w.started_at as achieved_at
           from workouts w
@@ -209,9 +199,6 @@ export class PerformanceService {
           order by s.weight_kg desc
           limit 1
           `,
-          [userId],
-        ),
-        client.query(
           `
           select w.id as workout_id, 'strength' as sport, concat('Best e1RM - ', e.name) as metric_name, s.estimated_one_rep_max_kg as value, 'kg' as unit, w.started_at as achieved_at
           from workouts w
@@ -221,26 +208,16 @@ export class PerformanceService {
           order by s.estimated_one_rep_max_kg desc
           limit 1
           `,
-          [userId],
-        ),
-        client.query(
           "select w.id as workout_id, 'basketball' as sport, 'Best perceived performance' as metric_name, j.perceived_performance as value, '/10' as unit, w.started_at as achieved_at from workouts w join basketball_journal_entries j on j.workout_id = w.id where w.user_id = $1 and j.perceived_performance is not null order by j.perceived_performance desc limit 1",
-          [userId],
-        ),
-        client.query(
           "select w.id as workout_id, 'basketball' as sport, 'Best shooting rating' as metric_name, j.shooting as value, '/10' as unit, w.started_at as achieved_at from workouts w join basketball_journal_entries j on j.workout_id = w.id where w.user_id = $1 and j.shooting is not null order by j.shooting desc limit 1",
-          [userId],
-        ),
-        client.query(
           "select w.id as workout_id, 'basketball' as sport, 'Best explosiveness rating' as metric_name, j.explosiveness as value, '/10' as unit, w.started_at as achieved_at from workouts w join basketball_journal_entries j on j.workout_id = w.id where w.user_id = $1 and j.explosiveness is not null order by j.explosiveness desc limit 1",
-          [userId],
-        ),
-        client.query(
           "select w.id as workout_id, 'basketball' as sport, 'Longest basketball session' as metric_name, w.duration_seconds as value, 's' as unit, w.started_at as achieved_at from workouts w where w.user_id = $1 and w.sport = 'basketball' order by w.duration_seconds desc limit 1",
-          [userId],
-        ),
-      ])
-      const records = [longestRun, fastestRun, longestWorkout, bestWeight, bestOneRepMax, basketballPerformance, basketballShooting, basketballExplosiveness, longestBasketball]
+      ]
+      const recordResults = []
+      for (const query of recordQueries) {
+        recordResults.push(await client.query(query, [userId]))
+      }
+      const records = recordResults
         .flatMap((result) => result.rows)
         .map((row: any, index: number) => ({ id: `${row.sport}-${row.metric_name}-${index}`, ...row }))
       return { records }

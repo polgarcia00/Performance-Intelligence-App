@@ -5,6 +5,7 @@ import {
   getPostgresIntegrationSetupError,
   type PostgresTestHarness,
 } from './helpers/postgresTestDatabase.js'
+import { getWeekRange } from '../utils/dates.js'
 
 const setupError = getPostgresIntegrationSetupError()
 
@@ -213,6 +214,128 @@ if (setupError) {
       assert.equal(completedResponse.body.data.length, 3)
     })
 
+    it('persists manual workouts for every supported sport and analyzes them after enrichment', async () => {
+      const week = getWeekRange()
+      const dateForDay = (dayOffset: number) => {
+        const date = new Date(`${week.weekStart}T00:00:00Z`)
+        date.setUTCDate(date.getUTCDate() + dayOffset)
+        return date.toISOString().slice(0, 10)
+      }
+
+      const runningResponse = await harness.request(harness.app)
+        .post('/api/workouts/manual')
+        .send({
+          sport: 'running',
+          startedAt: `${dateForDay(0)}T07:00:00Z`,
+          durationSeconds: 1800,
+          distanceMeters: 5000,
+          calories: 452,
+          averageHeartRate: 145,
+          maxHeartRate: 172,
+        })
+        .expect(201)
+      const strengthResponse = await harness.request(harness.app)
+        .post('/api/workouts/manual')
+        .send({
+          sport: 'strength',
+          startedAt: `${dateForDay(1)}T17:00:00Z`,
+          durationSeconds: 2700,
+          calories: 330,
+          averageHeartRate: 112,
+        })
+        .expect(201)
+      const basketballResponse = await harness.request(harness.app)
+        .post('/api/workouts/manual')
+        .send({
+          sport: 'basketball',
+          startedAt: `${dateForDay(2)}T18:30:00Z`,
+          durationSeconds: 4200,
+          calories: 640,
+          averageHeartRate: 153,
+          maxHeartRate: 186,
+        })
+        .expect(201)
+
+      const details = [runningResponse.body.data, strengthResponse.body.data, basketballResponse.body.data]
+      assert.ok(details.every((detail: any) => detail.workout.source === 'manual'))
+      assert.ok(details.every((detail: any) => detail.workout.import_batch_id === null))
+      assert.ok(details.every((detail: any) => detail.workout.source_sport_code === null))
+      assert.ok(details.every((detail: any) => detail.workout.source_row_fingerprint === null))
+      assert.ok(details.every((detail: any) => detail.journalStatus.status === 'needs_enrichment'))
+      assert.equal(Number(runningResponse.body.data.objectiveMetrics.running.pace_seconds_per_km), 360)
+      assert.equal(Number(strengthResponse.body.data.objectiveMetrics.strength.detected_duration_seconds), 2700)
+      assert.equal(Number(basketballResponse.body.data.objectiveMetrics.basketball.court_time_seconds), 4200)
+
+      const workoutList = (await harness.request(harness.app).get('/api/workouts').expect(200)).body.data
+      assert.equal(workoutList.length, 3)
+      assert.ok(workoutList.every((workout: any) => workout.source === 'manual'))
+
+      const inbox = (await harness.request(harness.app).get('/api/workouts/inbox').expect(200)).body.data
+      assert.equal(inbox.length, 3)
+
+      const runningId = runningResponse.body.data.workout.id
+      const strengthId = strengthResponse.body.data.workout.id
+      const basketballId = basketballResponse.body.data.workout.id
+      const runningObjectiveBefore = runningResponse.body.data.workout
+
+      await harness.request(harness.app)
+        .put(`/api/workouts/${runningId}/running-journal`)
+        .send({ trainingPurpose: 'zone2', perceivedEffort: 6, perceivedPerformance: 8, notes: 'Controlled run.' })
+        .expect(200)
+      await harness.request(harness.app)
+        .put(`/api/workouts/${strengthId}/strength-journal`)
+        .send({
+          sessionType: 'lower',
+          exercises: [{ name: 'Back squat', muscleGroup: 'Legs', sets: [{ setNumber: 1, reps: 5, weightKg: 80, rpe: 7 }] }],
+        })
+        .expect(200)
+      await harness.request(harness.app)
+        .put(`/api/workouts/${basketballId}/basketball-journal`)
+        .send({ sessionType: 'pickup', perceivedPerformance: 8, perceivedEffort: 8, energy: 7, shooting: 7, defense: 8, role: 'balanced' })
+        .expect(200)
+
+      const runningAfter = (await harness.request(harness.app).get(`/api/workouts/${runningId}`).expect(200)).body.data
+      assert.equal(runningAfter.workout.source, 'manual')
+      assert.equal(Number(runningAfter.workout.duration_seconds), Number(runningObjectiveBefore.duration_seconds))
+      assert.equal(Number(runningAfter.workout.distance_meters), Number(runningObjectiveBefore.distance_meters))
+      assert.equal(Number(runningAfter.workout.calories), Number(runningObjectiveBefore.calories))
+      assert.equal(Number(runningAfter.workout.average_heart_rate), Number(runningObjectiveBefore.average_heart_rate))
+      assert.equal(runningAfter.journalStatus.status, 'completed')
+
+      const completed = (await harness.request(harness.app).get('/api/workouts?status=completed').expect(200)).body.data
+      assert.equal(completed.length, 3)
+      assert.equal((await harness.request(harness.app).get('/api/performance/running').expect(200)).body.data.sessions.length, 1)
+      assert.equal((await harness.request(harness.app).get('/api/performance/strength').expect(200)).body.data.sets.length, 1)
+      assert.equal((await harness.request(harness.app).get('/api/performance/basketball').expect(200)).body.data.summary.sessionCount, 1)
+
+      const dashboard = await harness.request(harness.app).get('/api/dashboard/summary').expect(200)
+      assert.equal(dashboard.body.data.whatHappened.workoutCount, 3)
+
+      const weeklyReview = await harness.request(harness.app).get(`/api/weekly-reviews/${week.weekStart}`).expect(200)
+      assert.match(weeklyReview.body.data.generated_summary, /3 workouts/)
+    })
+
+    it('rejects invalid manual workout payloads with field-level validation errors', async () => {
+      const response = await harness.request(harness.app)
+        .post('/api/workouts/manual')
+        .send({
+          sport: 'running',
+          startedAt: 'not-a-date',
+          durationSeconds: 0,
+          distanceMeters: -1,
+          calories: -1,
+          averageHeartRate: 230,
+        })
+        .expect(422)
+
+      assert.equal(response.body.error.code, 'validation_failed')
+      assert.ok(response.body.error.fieldErrors.startedAt)
+      assert.ok(response.body.error.fieldErrors.durationSeconds)
+      assert.ok(response.body.error.fieldErrors.distanceMeters)
+      assert.ok(response.body.error.fieldErrors.calories)
+      assert.ok(response.body.error.fieldErrors.averageHeartRate)
+    })
+
     it('exposes backend-owned dashboard, performance, records, and weekly review endpoints', async () => {
       await importWorkoutCsv()
       const workouts = (await harness.request(harness.app).get('/api/workouts').expect(200)).body.data
@@ -259,7 +382,7 @@ if (setupError) {
       await harness.request(harness.app).get('/api/weekly-reviews/current').expect(200)
 
       const weeklyReviewResponse = await harness.request(harness.app).get('/api/weekly-reviews/2026-07-06').expect(200)
-      assert.match(weeklyReviewResponse.body.data.generated_summary, /imported workouts/)
+      assert.match(weeklyReviewResponse.body.data.generated_summary, /workouts/)
 
       const savedWeeklyReviewResponse = await harness.request(harness.app)
         .post('/api/weekly-reviews/2026-07-06')

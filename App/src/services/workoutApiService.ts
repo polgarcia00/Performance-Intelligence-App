@@ -1,6 +1,6 @@
-import type { WorkoutBundle } from '@/types'
+import type { ManualWorkoutInput, WorkoutBundle } from '@/types'
 import type { WorkoutJournalStatusSummary } from '@/utils/workoutJournal'
-import { apiGet } from './apiClient'
+import { apiGet, apiPost } from './apiClient'
 import { adaptJournalStatus, adaptWorkout, adaptWorkoutDetail, emptyWorkoutBundle } from './backendAdapters'
 
 export interface WorkoutListFilters {
@@ -48,4 +48,8 @@ export async function fetchWorkoutInbox(filters: WorkoutListFilters = { pageSize
 
 export async function fetchWorkoutDetail(workoutId: string): Promise<WorkoutBundleWithStatus> {
   return adaptWorkoutDetail(await apiGet(`/workouts/${workoutId}`))
+}
+
+export async function createManualWorkout(input: ManualWorkoutInput): Promise<WorkoutBundleWithStatus> {
+  return adaptWorkoutDetail(await apiPost('/workouts/manual', input))
 }

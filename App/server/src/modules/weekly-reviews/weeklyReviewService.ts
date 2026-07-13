@@ -90,12 +90,12 @@ export class WeeklyReviewService {
       week_start: weekStart,
       week_end: weekEnd,
       generated_summary: total
-        ? `This week had ${total} imported workouts. The journal should explain which sessions mattered most.`
-        : 'No imported workouts were found for this week yet.',
+        ? `This week had ${total} workouts. The journal should explain which sessions mattered most.`
+        : 'No workouts were found for this week yet.',
       running_reflection: countBySport.running ? `Running appeared ${countBySport.running} time(s). Compare runs by training purpose before judging progress.` : 'No running sessions appeared this week.',
       strength_reflection: countBySport.strength ? `Strength appeared ${countBySport.strength} time(s). Journal exercises and RPE to understand overload.` : 'No strength sessions appeared this week.',
       basketball_reflection: countBySport.basketball ? `Basketball appeared ${countBySport.basketball} time(s). Add role, energy, shooting, and defense notes.` : 'No basketball sessions appeared this week.',
-      consistency_reflection: total ? `Consistency was ${total >= 3 ? 'solid' : 'light'} based on imported workouts.` : 'Consistency cannot be assessed without imported workouts.',
+      consistency_reflection: total ? `Consistency was ${total >= 3 ? 'solid' : 'light'} based on journal workouts.` : 'Consistency cannot be assessed without workouts.',
       lessons_learned: ['Review the Workout Inbox before drawing conclusions from the week.'],
       suggested_focus: total ? 'Complete missing journal entries for the most important workouts.' : 'Import Zepp workouts to start the weekly story.',
     }

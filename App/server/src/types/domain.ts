@@ -2,6 +2,17 @@ export type Sport = 'running' | 'strength' | 'basketball' | 'unknown'
 export type ImportCategory = 'workout' | 'ignored' | 'unknown'
 export type JournalStatus = 'needs_enrichment' | 'partially_enriched' | 'completed'
 
+export interface ManualWorkoutInput {
+  sport: Exclude<Sport, 'unknown'>
+  startedAt: string
+  date: string
+  durationSeconds: number
+  distanceMeters?: number
+  calories?: number
+  averageHeartRate?: number
+  maxHeartRate?: number
+}
+
 export interface ImportFileInput {
   fileName: string
   content: string

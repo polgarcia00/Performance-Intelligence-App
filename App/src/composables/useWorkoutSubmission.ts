@@ -21,23 +21,17 @@ export function useWorkoutSubmission() {
 
   async function submitRunningWorkout(input: RunningWorkoutInput) {
     throwIfInvalid(validateRunningWorkout(input))
-    const { workout, session } = createRunningWorkout(input)
-
-    await workoutStore.addRunningWorkout(workout, session)
+    return workoutStore.createManualWorkout(createRunningWorkout(input))
   }
 
   async function submitStrengthWorkout(input: StrengthWorkoutInput) {
     throwIfInvalid(validateStrengthWorkout(input))
-    const { workout, session } = createStrengthWorkout(input)
-
-    await workoutStore.addStrengthWorkout(workout, session)
+    return workoutStore.createManualWorkout(createStrengthWorkout(input))
   }
 
   async function submitBasketballWorkout(input: BasketballWorkoutInput) {
     throwIfInvalid(validateBasketballWorkout(input))
-    const { workout, session } = createBasketballWorkout(input)
-
-    await workoutStore.addBasketballWorkout(workout, session)
+    return workoutStore.createManualWorkout(createBasketballWorkout(input))
   }
 
   return {

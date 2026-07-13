@@ -163,10 +163,8 @@ export class ImportRepository {
     )
     if (!batch.rows[0]) return null
 
-    const [files, errors] = await Promise.all([
-      client.query('select * from import_files where import_batch_id = $1 order by created_at asc', [importBatchId]),
-      client.query('select * from import_errors where import_batch_id = $1 order by severity desc, row_number asc nulls last', [importBatchId]),
-    ])
+    const files = await client.query('select * from import_files where import_batch_id = $1 order by created_at asc', [importBatchId])
+    const errors = await client.query('select * from import_errors where import_batch_id = $1 order by severity desc, row_number asc nulls last', [importBatchId])
 
     return {
       batch: batch.rows[0],

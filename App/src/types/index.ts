@@ -23,6 +23,7 @@ export type {
 export type {
   BasketballSession,
   BasketballWorkoutEnrichment,
+  ManualWorkoutInput,
   RunningGoal,
   RunningWorkoutEnrichment,
   RunningSession,

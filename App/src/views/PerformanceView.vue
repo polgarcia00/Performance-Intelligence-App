@@ -130,7 +130,7 @@ onMounted(() => {
 
     <section v-if="activeTab === 'trends'" class="section-stack">
       <div class="card-grid">
-        <TrendMetricCard title="Trend volume" :value="trendSummary.totalDurationMinutes" format="duration" description="Imported workout duration from backend trends." />
+        <TrendMetricCard title="Trend volume" :value="trendSummary.totalDurationMinutes" format="duration" description="Workout duration from backend trends." />
         <TrendMetricCard title="Trend sessions" :value="trendSummary.sessionCount" description="Sessions represented in backend trend rows." />
         <TrendMetricCard title="Sports represented" :value="trendSummary.sportCount" description="Sports represented in the current trend response." />
       </div>

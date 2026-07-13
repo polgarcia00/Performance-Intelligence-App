@@ -25,13 +25,14 @@ onMounted(async () => {
 })
 
 const summary = computed(() => dashboardStore.summary)
-const hasImportedData = computed(() => dashboardStore.hasImportedWorkouts || importHistoryStore.hasImports)
+const hasWorkoutData = computed(() => dashboardStore.hasWorkouts || importHistoryStore.hasImports)
 const latestImport = computed(() => importHistoryStore.latestImport)
 const recentWorkouts = computed(() => summary.value?.whatHappened?.recentWorkouts ?? [])
 const workoutsNeedingReview = computed(() => summary.value?.needsAttention?.workoutsNeedingEnrichment ?? [])
 const totalNeedingReview = computed(() => summary.value?.needsAttention?.missingWorkoutDetailsCount ?? 0)
 const weeklyWorkoutDuration = computed(() => Number(summary.value?.whatHappened?.totalDurationSeconds ?? 0) / 60)
-const importedWorkoutCount = computed(() => Number(summary.value?.whatHappened?.workoutCount ?? 0))
+const weeklyWorkoutCount = computed(() => Number(summary.value?.whatHappened?.workoutCount ?? 0))
+const weeklyWorkoutLabel = computed(() => `${weeklyWorkoutCount.value} ${weeklyWorkoutCount.value === 1 ? 'workout' : 'workouts'}`)
 const weeklyReport = computed(() => performanceStore.weeklyReport)
 const insightCards = computed(() => summary.value?.whatILearned?.insightCards ?? [])
 const sportDistribution = computed(() => summary.value?.whatHappened?.sportDistribution ?? { running: 0, strength: 0, basketball: 0 })
@@ -55,7 +56,7 @@ const weeklyLoadData = computed(() => ({
     </template>
 
     <BaseEmptyState
-      v-if="!hasImportedData"
+      v-if="!hasWorkoutData"
       title="Import Zepp workout data to start"
       message="Zepp records what happened. My Performance Journal starts once those workouts are imported and reviewed."
     >
@@ -69,7 +70,7 @@ const weeklyLoadData = computed(() => ({
       <section class="journal-section">
         <h2>What happened?</h2>
         <div class="two-column-grid">
-          <BaseCard title="Recent workouts" subtitle="Imported objective workout facts">
+          <BaseCard title="Recent workouts" subtitle="Objective workout facts">
             <div class="mini-list">
               <RouterLink v-for="workout in recentWorkouts" :key="workout.id" :to="`/workouts/${workout.id}`">
                 <strong>{{ workout.sport }}</strong>
@@ -78,10 +79,10 @@ const weeklyLoadData = computed(() => ({
             </div>
           </BaseCard>
 
-          <BaseCard title="Weekly volume" subtitle="Imported workout volume this week">
+          <BaseCard title="Weekly volume" subtitle="Workout volume this week">
             <div class="summary-line">
               <strong>{{ formatDuration(weeklyWorkoutDuration) }}</strong>
-              <span>{{ importedWorkoutCount }} imported workouts in your journal</span>
+              <span>{{ weeklyWorkoutLabel }} in your journal</span>
             </div>
             <WorkoutTrendChart title="Weekly sport distribution" :labels="weeklyLoadData.labels" :values="weeklyLoadData.values" />
           </BaseCard>
@@ -112,7 +113,7 @@ const weeklyLoadData = computed(() => ({
                 </RouterLink>
               </article>
             </div>
-            <p v-else class="muted">All imported workouts have enough journal context for analysis.</p>
+            <p v-else class="muted">All workouts have enough journal context for analysis.</p>
             <template #action>
               <RouterLink to="/workouts"><BaseButton variant="secondary">Review inbox</BaseButton></RouterLink>
             </template>

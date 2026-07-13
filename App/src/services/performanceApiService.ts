@@ -62,7 +62,7 @@ function mapWeeklyReview(row: any): WeeklyReport {
     strengthSummary: row.strength_reflection ?? '',
     basketballSummary: row.basketball_reflection ?? '',
     consistencySummary: row.consistency_reflection ?? '',
-    lessonsLearned: Array.isArray(row.lessons_learned) ? row.lessons_learned : ['Review imported workouts before drawing conclusions.'],
+    lessonsLearned: Array.isArray(row.lessons_learned) ? row.lessons_learned : ['Review journal workouts before drawing conclusions.'],
     suggestedFocus: row.suggested_focus ?? '',
     insightIds: [],
     actionableInsightIds: [],

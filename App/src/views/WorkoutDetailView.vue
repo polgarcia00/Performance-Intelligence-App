@@ -50,14 +50,17 @@ async function saveBasketball(enrichment: BasketballWorkoutEnrichment) {
   <PageContainer
     title="Workout Details"
     eyebrow="Objective data + journal meaning"
-    description="Review imported Zepp facts, then record what the workout meant."
+    description="Review objective workout facts, then record what the workout meant."
   >
-    <BaseEmptyState v-if="!workout" title="Workout not found" message="Import Zepp workouts or choose another workout.">
+    <BaseEmptyState v-if="!workout" title="Workout not found" message="Import Zepp workouts, add a missing workout, or choose another workout.">
       <RouterLink to="/workouts"><BaseButton>Back to workouts</BaseButton></RouterLink>
     </BaseEmptyState>
 
     <template v-else>
-      <BaseCard title="Objective Zepp Data" subtitle="Imported data is read-only here and is never overwritten by journal edits.">
+      <BaseCard
+        :title="workout.source === 'manual' ? 'Objective Workout Data' : 'Objective Zepp Data'"
+        :subtitle="workout.source === 'manual' ? 'Manually entered objective data is read-only after creation.' : 'Imported data is read-only here and is never overwritten by journal edits.'"
+      >
         <div class="objective-grid">
           <div>
             <span>Sport</span>
@@ -102,7 +105,7 @@ async function saveBasketball(enrichment: BasketballWorkoutEnrichment) {
         </div>
       </BaseCard>
 
-      <BaseCard title="Journal Entry" subtitle="This editable context is saved separately from objective Zepp data.">
+      <BaseCard title="Journal Entry" subtitle="This editable context is saved separately from objective workout data.">
         <div v-if="journalStatus" class="journal-status">
           <BaseBadge :tone="journalStatus.tone">{{ journalStatus.label }}</BaseBadge>
           <span>{{ journalStatus.missingFields.length ? `Missing: ${journalStatus.missingFields.join(', ')}` : 'Journal context is complete enough for analysis.' }}</span>

@@ -2,11 +2,39 @@ import { env } from '../../config/env.js'
 import { transaction } from '../../database/pool.js'
 import { AppError } from '../../middleware/errors.js'
 import { WorkoutRepository, type WorkoutFilters } from '../../repositories/workoutRepository.js'
+import { calculatePaceSecondsPerKm } from '../../utils/numbers.js'
+import { parseManualWorkoutInput } from '../../validation/manualWorkout.js'
 import { readPage, readPageSize } from '../../validation/validators.js'
 import { basketballJournalStatus, runningJournalStatus, strengthJournalStatus } from '../../utils/workoutJournalStatus.js'
 
+function optionalNumber(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === '') return undefined
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
 export class WorkoutService {
   constructor(private workoutRepository = new WorkoutRepository()) {}
+
+  async createManualWorkout(body: unknown, userId = env.defaultUserId): Promise<any> {
+    const workout = parseManualWorkoutInput(body)
+
+    return transaction(async (client) => {
+      const workoutId = await this.workoutRepository.createManualWorkout(client, userId, workout)
+      const paceSecondsPerKm = calculatePaceSecondsPerKm(workout.durationSeconds, workout.distanceMeters)
+      await this.workoutRepository.createManualWorkoutMetrics(client, workoutId, workout, paceSecondsPerKm)
+
+      const detail = await this.workoutRepository.getWorkoutDetail(client, userId, workoutId)
+      if (!detail) {
+        throw new AppError(500, 'manual_workout_create_failed', 'The manual workout could not be loaded after saving.')
+      }
+
+      return {
+        ...detail,
+        journalStatus: this.statusForDetail(detail),
+      }
+    })
+  }
 
   async listWorkouts(query: Record<string, unknown>, userId = env.defaultUserId): Promise<any[]> {
     const filters: WorkoutFilters = {
@@ -37,8 +65,8 @@ export class WorkoutService {
     if (row.sport === 'running') {
       return runningJournalStatus({
         trainingPurpose: row.training_purpose,
-        perceivedEffort: row.running_effort,
-        perceivedPerformance: row.running_performance,
+        perceivedEffort: optionalNumber(row.running_effort),
+        perceivedPerformance: optionalNumber(row.running_performance),
       })
     }
     if (row.sport === 'strength') {
@@ -63,7 +91,13 @@ export class WorkoutService {
     if (row.sport === 'basketball') {
       return basketballJournalStatus({
         sessionType: row.basketball_session_type,
-        perceivedPerformance: row.basketball_performance,
+        perceivedPerformance: optionalNumber(row.basketball_performance),
+        perceivedEffort: optionalNumber(row.basketball_effort),
+        energy: optionalNumber(row.basketball_energy),
+        shooting: optionalNumber(row.basketball_shooting),
+        defense: optionalNumber(row.basketball_defense),
+        role: row.basketball_role,
+        notes: row.basketball_notes,
       })
     }
     return { status: 'needs_enrichment', missingFields: ['sport review'] }
@@ -75,8 +109,8 @@ export class WorkoutService {
       const journal = detail.journal.running
       return runningJournalStatus({
         trainingPurpose: journal?.training_purpose,
-        perceivedEffort: journal?.perceived_effort,
-        perceivedPerformance: journal?.perceived_performance,
+        perceivedEffort: optionalNumber(journal?.perceived_effort),
+        perceivedPerformance: optionalNumber(journal?.perceived_performance),
         routeType: journal?.route_type,
         notes: journal?.notes,
       })
@@ -102,11 +136,11 @@ export class WorkoutService {
       const journal = detail.journal.basketball
       return basketballJournalStatus({
         sessionType: journal?.session_type,
-        perceivedPerformance: journal?.perceived_performance,
-        perceivedEffort: journal?.perceived_effort,
-        energy: journal?.energy,
-        shooting: journal?.shooting,
-        defense: journal?.defense,
+        perceivedPerformance: optionalNumber(journal?.perceived_performance),
+        perceivedEffort: optionalNumber(journal?.perceived_effort),
+        energy: optionalNumber(journal?.energy),
+        shooting: optionalNumber(journal?.shooting),
+        defense: optionalNumber(journal?.defense),
         role: journal?.role,
         notes: journal?.notes,
       })

@@ -1,0 +1,10 @@
+{
+  "name": "my-performance-journal",
+  "private": true,
+  "scripts": {
+    "db:backup": "mkdir -p backups && docker compose exec -T postgres pg_dump -U performance_user performance_journal > backups/backup-$(date +%Y-%m-%d-%H%M%S).sql",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v"
+  }
+}

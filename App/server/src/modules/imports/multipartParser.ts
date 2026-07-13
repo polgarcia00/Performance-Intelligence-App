@@ -58,15 +58,15 @@ export async function parseMultipartImportFiles(request: any): Promise<ImportFil
     if (!fileName) continue
 
     if (!/\.(csv|json)$/i.test(fileName)) {
-      throw new AppError(415, 'unsupported_import_file', `Unsupported import file "${fileName}". Upload CSV or JSON files.`)
+      throw new AppError(415, 'unsupported_import_file', `Unsupported import file "${fileName}". Upload SPORT.csv or another Zepp workout CSV file.`)
     }
 
     files.push({ fileName, content: body.replace(/\r?\n$/, '') })
   }
 
   if (!files.length) {
-    throw new AppError(422, 'validation_failed', 'Upload at least one CSV or JSON file.', {
-      fieldErrors: { files: ['Upload at least one CSV or JSON file.'] },
+    throw new AppError(422, 'validation_failed', 'Upload SPORT.csv or another Zepp workout CSV file.', {
+      fieldErrors: { files: ['Upload SPORT.csv or another Zepp workout CSV file.'] },
     })
   }
 

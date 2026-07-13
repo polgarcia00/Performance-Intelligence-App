@@ -26,6 +26,7 @@ export function createRouter() {
   router.get('/imports/:id', asyncHandler(imports.detail.bind(imports)))
 
   router.get('/workouts/inbox', asyncHandler(workouts.inbox.bind(workouts)))
+  router.post('/workouts/manual', asyncHandler(workouts.createManual.bind(workouts)))
   router.get('/workouts', asyncHandler(workouts.list.bind(workouts)))
   router.get('/workouts/:id', asyncHandler(workouts.detail.bind(workouts)))
   router.put('/workouts/:id/running-journal', asyncHandler(journals.saveRunning.bind(journals)))

@@ -94,4 +94,30 @@ describe('DashboardView', () => {
     expect(wrapper.text()).toContain('Recent insights')
     expect(wrapper.text()).toContain('Latest imported data')
   })
+
+  it('renders a persisted manual workout without pretending an import exists', async () => {
+    serviceMocks.fetchDashboardSummary.mockResolvedValue({
+      whatHappened: {
+        workoutCount: 1,
+        sportDistribution: { running: 1, strength: 0, basketball: 0 },
+        totalDurationSeconds: 1800,
+        recentWorkouts: [{ id: 'manual-run-1', source: 'manual', sport: 'running', date: '2026-07-13', duration_seconds: 1800 }],
+        latestImport: null,
+      },
+      needsAttention: {
+        workoutsNeedingEnrichment: [{ id: 'manual-run-1', source: 'manual', sport: 'running', date: '2026-07-13', duration_seconds: 1800 }],
+        missingWorkoutDetailsCount: 1,
+      },
+      whatILearned: { insightCards: [] },
+      progress: { running: { sessions: 1 }, strength: { sessions: 0 }, basketball: { sessions: 0 } },
+    })
+    serviceMocks.fetchImportHistory.mockResolvedValue([])
+
+    const { wrapper } = await mountWithAppContext(DashboardView)
+
+    expect(wrapper.text()).not.toContain('Import Zepp workout data to start')
+    expect(wrapper.text()).toContain('1 workout in your journal')
+    expect(wrapper.text()).toContain('Workout Inbox')
+    expect(wrapper.text()).not.toContain('Latest imported data')
+  })
 })

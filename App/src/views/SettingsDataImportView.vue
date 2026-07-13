@@ -58,11 +58,11 @@ function backupLocalData() {
 
 <template>
   <PageContainer title="Settings / Data Import" eyebrow="Import first" description="Import Zepp workout data, preview it, then save normalized workout records for journaling and analysis.">
-    <BaseCard title="Import Zepp workout data" subtitle="Upload SPORT.csv or a Zepp ZIP containing SPORT.csv">
+    <BaseCard title="Import Zepp workout data" subtitle="Upload SPORT.csv from your Zepp workout export.">
       <div class="import-actions">
         <label class="file-picker" for="zepp-import-file">
-          <span>Choose SPORT.csv or Zepp ZIP</span>
-          <input id="zepp-import-file" type="file" accept=".zip,.csv,application/zip,text/csv" multiple @change="handleFileChange" />
+          <span>Choose SPORT.csv</span>
+          <input id="zepp-import-file" type="file" accept=".csv,text/csv" multiple @change="handleFileChange" />
         </label>
         <BaseButton variant="secondary" :disabled="isLoading" @click="loadSamplePreview">
           Load sample export
@@ -221,7 +221,7 @@ function backupLocalData() {
     </BaseCard>
 
     <BaseCard title="Fallback tools" subtitle="Secondary tools for missing Zepp workouts and local maintenance">
-      <p>Use fallback workout entry only when a workout is missing from Zepp and cannot be imported.</p>
+      <p>Use fallback workout entry only when Zepp missed a workout. Manual entries are saved to PostgreSQL and can be enriched like imported workouts.</p>
       <template #action>
         <RouterLink to="/workouts/add-missing"><BaseButton variant="secondary">Add missing workout</BaseButton></RouterLink>
       </template>

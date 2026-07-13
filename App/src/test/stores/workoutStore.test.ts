@@ -1,9 +1,14 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useWorkoutStore } from '@/stores/workoutStore'
-import type { RunningSession, Workout } from '@/types'
+import type { Workout } from '@/types'
+
+const apiMocks = vi.hoisted(() => ({
+  createManualWorkout: vi.fn(),
+}))
 
 vi.mock('@/services/workoutApiService', () => ({
+  createManualWorkout: apiMocks.createManualWorkout,
   fetchWorkouts: vi.fn(async () => ({
     workouts: [],
     runningSessions: [],
@@ -44,9 +49,10 @@ vi.mock('@/services/journalApiService', () => ({
 describe('useWorkoutStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    apiMocks.createManualWorkout.mockReset()
   })
 
-  it('adds a running workout and exposes it by type', async () => {
+  it('creates a manual workout through the API and merges the returned detail', async () => {
     const store = useWorkoutStore()
     const workout: Workout = {
       id: 'run-test',
@@ -54,16 +60,27 @@ describe('useWorkoutStore', () => {
       date: '2026-07-07',
       durationMinutes: 30,
       source: 'manual',
-      perceivedEffort: 6,
     }
-    const session: RunningSession = {
-      workoutId: workout.id,
-      distanceKm: 5,
-      paceSecondsPerKm: 360,
-    }
+    apiMocks.createManualWorkout.mockResolvedValue({
+      workouts: [workout],
+      runningSessions: [{ workoutId: workout.id, distanceKm: 5, paceSecondsPerKm: 360 }],
+      strengthSessions: [],
+      basketballSessions: [],
+      runningEnrichments: [],
+      strengthEnrichments: [],
+      basketballEnrichments: [],
+      journalStatuses: {},
+    })
 
-    await store.addRunningWorkout(workout, session)
+    const created = await store.createManualWorkout({
+      sport: 'running',
+      startedAt: '2026-07-07T10:00',
+      durationSeconds: 1800,
+      distanceMeters: 5000,
+    })
 
+    expect(apiMocks.createManualWorkout).toHaveBeenCalledOnce()
+    expect(created).toEqual(workout)
     expect(store.workoutsByType('running')).toHaveLength(1)
     expect(store.runningSessions[0]?.distanceKm).toBe(5)
   })

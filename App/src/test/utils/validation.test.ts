@@ -22,7 +22,7 @@ describe('validation utilities', () => {
 
   it('rejects impossible running heart-rate values', () => {
     const result = validateRunningWorkout({
-      date: '2026-07-07',
+      startedAt: '2026-07-07T10:00',
       durationMinutes: 30,
       distanceKm: 5,
       averageHeartRate: 190,
@@ -33,21 +33,20 @@ describe('validation utilities', () => {
     expect(result.errors.join(' ')).toContain('Average heart rate cannot be higher')
   })
 
-  it('rejects basketball intensity above session duration', () => {
+  it('rejects negative calories for a manual basketball workout', () => {
     const result = validateBasketballWorkout({
-      date: '2026-07-07',
+      startedAt: '2026-07-07T18:00',
       durationMinutes: 20,
-      sessionType: 'pickup',
-      highIntensityMinutes: 25,
+      calories: -1,
     })
 
     expect(result.valid).toBe(false)
-    expect(result.errors.join(' ')).toContain('cannot exceed duration')
+    expect(result.errors.join(' ')).toContain('Calories cannot be negative')
   })
 
   it('accepts a valid running workout fallback entry', () => {
     const result = validateRunningWorkout({
-      date: '2026-07-07',
+      startedAt: '2026-07-07T10:00',
       durationMinutes: 30,
       distanceKm: 5,
       averageHeartRate: 142,

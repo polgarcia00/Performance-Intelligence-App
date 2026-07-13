@@ -1,3 +1,5 @@
+import type { ManualWorkoutInput } from '../types/domain.js'
+
 export interface WorkoutFilters {
   sport?: string
   status?: string
@@ -9,6 +11,65 @@ export interface WorkoutFilters {
 }
 
 export class WorkoutRepository {
+  async createManualWorkout(client: any, userId: string, workout: ManualWorkoutInput): Promise<string> {
+    const result = await client.query(
+      `
+      insert into workouts (
+        user_id, source, sport, started_at, date, duration_seconds, distance_meters,
+        calories, average_heart_rate, max_heart_rate
+      )
+      values ($1, 'manual', $2, $3, $4, $5, $6, $7, $8, $9)
+      returning id
+      `,
+      [
+        userId,
+        workout.sport,
+        workout.startedAt,
+        workout.date,
+        workout.durationSeconds,
+        workout.distanceMeters,
+        workout.calories,
+        workout.averageHeartRate,
+        workout.maxHeartRate,
+      ],
+    )
+    return result.rows[0].id
+  }
+
+  async createManualWorkoutMetrics(client: any, workoutId: string, workout: ManualWorkoutInput, paceSecondsPerKm?: number): Promise<void> {
+    if (workout.sport === 'running') {
+      await client.query(
+        `
+        insert into running_workout_metrics (workout_id, distance_meters, pace_seconds_per_km)
+        values ($1, $2, $3)
+        `,
+        [workoutId, workout.distanceMeters, paceSecondsPerKm],
+      )
+      return
+    }
+
+    if (workout.sport === 'strength') {
+      await client.query(
+        `
+        insert into strength_workout_metrics (
+          workout_id, detected_duration_seconds, detected_calories, detected_average_heart_rate
+        )
+        values ($1, $2, $3, $4)
+        `,
+        [workoutId, workout.durationSeconds, workout.calories, workout.averageHeartRate],
+      )
+      return
+    }
+
+    await client.query(
+      `
+      insert into basketball_workout_metrics (workout_id, court_time_seconds)
+      values ($1, $2)
+      `,
+      [workoutId, workout.durationSeconds],
+    )
+  }
+
   async listWorkouts(client: any, userId: string, filters: WorkoutFilters): Promise<any[]> {
     const conditions = ['w.user_id = $1']
     const params: unknown[] = [userId]
@@ -97,25 +158,23 @@ export class WorkoutRepository {
     const workout = await this.getWorkoutById(client, userId, workoutId)
     if (!workout) return null
 
-    const [runningMetrics, strengthMetrics, basketballMetrics, runningJournal, strengthJournal, strengthExercises, basketballJournal] = await Promise.all([
-      client.query('select * from running_workout_metrics where workout_id = $1', [workoutId]),
-      client.query('select * from strength_workout_metrics where workout_id = $1', [workoutId]),
-      client.query('select * from basketball_workout_metrics where workout_id = $1', [workoutId]),
-      client.query('select * from running_journal_entries where workout_id = $1', [workoutId]),
-      client.query('select * from strength_journal_entries where workout_id = $1', [workoutId]),
-      client.query(
-        `
-        select e.*, coalesce(json_agg(s.* order by s.sort_order) filter (where s.id is not null), '[]') as sets
-        from strength_exercises e
-        left join strength_sets s on s.exercise_id = e.id
-        where e.workout_id = $1
-        group by e.id
-        order by e.sort_order
-        `,
-        [workoutId],
-      ),
-      client.query('select * from basketball_journal_entries where workout_id = $1', [workoutId]),
-    ])
+    const runningMetrics = await client.query('select * from running_workout_metrics where workout_id = $1', [workoutId])
+    const strengthMetrics = await client.query('select * from strength_workout_metrics where workout_id = $1', [workoutId])
+    const basketballMetrics = await client.query('select * from basketball_workout_metrics where workout_id = $1', [workoutId])
+    const runningJournal = await client.query('select * from running_journal_entries where workout_id = $1', [workoutId])
+    const strengthJournal = await client.query('select * from strength_journal_entries where workout_id = $1', [workoutId])
+    const strengthExercises = await client.query(
+      `
+      select e.*, coalesce(json_agg(s.* order by s.sort_order) filter (where s.id is not null), '[]') as sets
+      from strength_exercises e
+      left join strength_sets s on s.exercise_id = e.id
+      where e.workout_id = $1
+      group by e.id
+      order by e.sort_order
+      `,
+      [workoutId],
+    )
+    const basketballJournal = await client.query('select * from basketball_journal_entries where workout_id = $1', [workoutId])
 
     return {
       workout,

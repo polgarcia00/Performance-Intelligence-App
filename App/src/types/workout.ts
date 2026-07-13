@@ -1,6 +1,16 @@
 export type WorkoutType = 'running' | 'strength' | 'basketball'
 export type WorkoutSource = 'manual' | 'mock' | 'csv' | 'zepp' | 'appleHealth' | 'healthConnect'
 
+export interface ManualWorkoutInput {
+  sport: WorkoutType
+  startedAt: string
+  durationSeconds: number
+  distanceMeters?: number
+  calories?: number
+  averageHeartRate?: number
+  maxHeartRate?: number
+}
+
 export interface Workout {
   id: string
   type: WorkoutType

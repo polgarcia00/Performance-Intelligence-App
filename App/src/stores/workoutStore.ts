@@ -1,16 +1,20 @@
 import { defineStore } from 'pinia'
 import type {
-  BasketballSession,
   BasketballWorkoutEnrichment,
+  ManualWorkoutInput,
   RunningWorkoutEnrichment,
-  RunningSession,
   StrengthWorkoutEnrichment,
-  StrengthSession,
   Workout,
   WorkoutBundle,
   WorkoutType,
 } from '@/types'
-import { fetchWorkoutDetail, fetchWorkoutInbox, fetchWorkouts, type WorkoutListFilters } from '@/services/workoutApiService'
+import {
+  createManualWorkout as createManualWorkoutRequest,
+  fetchWorkoutDetail,
+  fetchWorkoutInbox,
+  fetchWorkouts,
+  type WorkoutListFilters,
+} from '@/services/workoutApiService'
 import { saveBasketballJournal, saveRunningJournal, saveStrengthJournal } from '@/services/journalApiService'
 import { enrichStrengthEnrichment, enrichStrengthSession } from '@/utils/performanceMetrics'
 import { getWorkoutJournalStatus, type WorkoutJournalStatusSummary } from '@/utils/workoutJournal'
@@ -149,17 +153,23 @@ export const useWorkoutStore = defineStore('workouts', {
         this.isLoading = false
       }
     },
-    async addRunningWorkout(workout: Workout, session: RunningSession) {
-      this.workouts.push(workout)
-      this.runningSessions.push(session)
-    },
-    async addStrengthWorkout(workout: Workout, session: StrengthSession) {
-      this.workouts.push(workout)
-      this.strengthSessions.push(enrichStrengthSession(session))
-    },
-    async addBasketballWorkout(workout: Workout, session: BasketballSession) {
-      this.workouts.push(workout)
-      this.basketballSessions.push(session)
+    async createManualWorkout(input: ManualWorkoutInput): Promise<Workout> {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        const detail = await createManualWorkoutRequest(input)
+        const workout = detail.workouts[0]
+        if (!workout) throw new Error('The saved workout could not be loaded.')
+
+        this.mergeWorkoutDetail(detail)
+        return workout
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : 'Unable to save the missing workout.'
+        throw error
+      } finally {
+        this.isLoading = false
+      }
     },
     async updateRunningEnrichment(workoutId: string, enrichment: Partial<RunningWorkoutEnrichment>) {
       await saveRunningJournal(workoutId, enrichment)

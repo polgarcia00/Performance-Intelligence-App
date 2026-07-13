@@ -27,7 +27,7 @@ function statusFor(workoutId: string) {
 <template>
   <PageContainer
     title="Workout Inbox"
-    eyebrow="Review imported workouts"
+    eyebrow="Review journal workouts"
     description="Imported Zepp workouts wait here until you add the context Zepp cannot capture."
   >
     <BaseEmptyState
@@ -38,7 +38,7 @@ function statusFor(workoutId: string) {
       <RouterLink to="/import"><BaseButton>Import Zepp workouts</BaseButton></RouterLink>
     </BaseEmptyState>
 
-    <BaseCard v-else title="Imported workouts" subtitle="Review status is based only on journal data. Objective Zepp values stay read-only.">
+    <BaseCard v-else title="Journal workouts" subtitle="Review status is based only on journal data. Objective values stay read-only after creation or import.">
       <div class="workout-list">
         <article v-for="workout in sortedWorkouts" :key="workout.id" class="workout-row">
           <div class="workout-main">

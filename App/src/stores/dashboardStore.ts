@@ -14,7 +14,7 @@ export const useDashboardStore = defineStore('dashboard', {
     error: null,
   }),
   getters: {
-    hasImportedWorkouts: (state) => Boolean(state.summary?.whatHappened?.workoutCount || state.summary?.whatHappened?.latestImport),
+    hasWorkouts: (state) => Boolean(state.summary?.whatHappened?.workoutCount),
   },
   actions: {
     async loadSummary() {
