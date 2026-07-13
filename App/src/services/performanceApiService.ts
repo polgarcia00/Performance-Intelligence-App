@@ -57,7 +57,7 @@ function mapWeeklyReview(row: any): WeeklyReport {
     bestPerformance: row.generated_summary ?? '',
     weakestArea: '',
     comparisonToPreviousWeek: row.generated_summary ?? '',
-    trainingLoadSummary: row.generated_summary ?? '',
+    weekStorySummary: row.generated_summary ?? '',
     runningSummary: row.running_reflection ?? '',
     strengthSummary: row.strength_reflection ?? '',
     basketballSummary: row.basketball_reflection ?? '',

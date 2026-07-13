@@ -1,4 +1,3 @@
-export type { Insight, InsightCategory } from './insight'
 export type {
   ImportedDataType,
   ImportDuplicate,
@@ -6,23 +5,18 @@ export type {
   ImportHistoryItem,
   ImportPreview,
   ImportPreviewSummary,
-  NormalizedImportData,
+  NormalizedImportPreviewData,
   ParsedImportRow,
 } from './importPreview'
-export type { PerformanceScore, PersonalRecord, TrainingLoad } from './performance'
+export type { PersonalRecord } from './performance'
 export type { WeeklyReport } from './report'
-export type { PerformanceAppState } from './state'
 export type { DistanceUnit, User, WeightUnit } from './user'
 export type {
   ZeppImportCategory,
   ZeppImportFile,
-  ZeppImportMessage,
   ZeppMappedWorkoutType,
-  ZeppParsedExport,
   ZeppParsedFileSummary,
-  ZeppSportRow,
   ZeppUnknownWorkout,
-  ZeppWorkoutNormalizationResult,
   ZeppWorkoutTypeCode,
   ZeppWorkoutTypeCount,
 } from './zepp'

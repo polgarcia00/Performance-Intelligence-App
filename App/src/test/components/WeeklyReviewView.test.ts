@@ -28,7 +28,7 @@ describe('WeeklyReviewView', () => {
         bestPerformance: '',
         weakestArea: '',
         comparisonToPreviousWeek: 'A fuller training week.',
-        trainingLoadSummary: 'Workout volume came from backend weekly review.',
+        weekStorySummary: 'Workout volume came from backend weekly review.',
         runningSummary: 'Running appeared this week.',
         strengthSummary: 'Strength appeared this week.',
         basketballSummary: 'Basketball appeared this week.',

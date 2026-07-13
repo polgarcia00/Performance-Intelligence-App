@@ -73,6 +73,9 @@ export function usePerformanceOverview() {
     return {
       labels: rows.map((item: any) => formatDate(item.week_start, 'short')),
       values: rows.map((item: any) => Number(item.duration_seconds ?? 0) / 60),
+      totalDurationMinutes: rows.reduce((total: number, item: any) => total + Number(item.duration_seconds ?? 0) / 60, 0),
+      sessionCount: rows.reduce((total: number, item: any) => total + Number(item.sessions ?? 0), 0),
+      sportCount: new Set(rows.map((item: any) => item.sport).filter(Boolean)).size,
       history: rows.map((item: any, index: number) => ({
         id: `${item.week_start}-${item.sport}-${index}`,
         title: `${formatDate(item.week_start)} - ${item.sport}`,
@@ -81,30 +84,11 @@ export function usePerformanceOverview() {
     }
   })
 
-  const trainingLoad = computed(() => {
-    const values = trendSummary.value.values
-    const totalLoad = values[0] ?? 0
-    return {
-      id: 'backend-trend-load',
-      weekStart: '',
-      weekEnd: '',
-      totalLoad,
-      runningLoad: 0,
-      strengthLoad: 0,
-      basketballLoad: 0,
-      acuteLoad: totalLoad,
-      chronicLoad: 0,
-      acuteChronicRatio: 0,
-      status: totalLoad ? 'productive' : 'low',
-    } as const
-  })
-
   return {
     runningSummary,
     strengthSummary,
     basketballSummary,
     trendSummary,
-    trainingLoad,
     records: computed(() => performanceStore.records),
   }
 }

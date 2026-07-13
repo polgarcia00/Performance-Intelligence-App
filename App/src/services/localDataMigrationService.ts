@@ -1,6 +1,5 @@
 import { writePersistedState } from './persistenceService'
 
-const MIGRATION_COMPLETED_KEY = 'local-data-migration-completed'
 const MIGRATION_BACKUP_KEY = 'local-data-migration-backup'
 
 export interface LocalDataMigrationPreview {
@@ -20,10 +19,6 @@ export function previewLocalDataMigration(): LocalDataMigrationPreview {
       'PostgreSQL is now the source of truth for imported workouts and journal data.',
     ],
   }
-}
-
-export function markLocalDataMigrationCompleted(): void {
-  writePersistedState(MIGRATION_COMPLETED_KEY, { completedAt: new Date().toISOString() })
 }
 
 export function backupLocalDataBeforeMigration(): void {

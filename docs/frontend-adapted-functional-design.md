@@ -10,11 +10,11 @@ The canonical product design is now:
 
 The current product direction is My Performance Journal, an athletic diary that extends Zepp:
 
-- Import Zepp data.
+- Import Zepp workouts.
 - Review imported workouts.
 - Enrich workouts with sport-specific context.
 - Analyze performance from objective data plus subjective meaning.
 - Reflect through weekly reviews.
 - Build a searchable history of athletic development.
 
-Future frontend design work should start from the canonical functional design and preserve its workflow-first page model: Dashboard, Workout Inbox, Workout Details, Performance, Weekly Review, Health Context, and Settings.
+Future frontend design work should start from the canonical functional design and preserve its workflow-first page model: Dashboard, Workout Inbox, Workout Details, Performance, Weekly Review, and Settings / Data Import.

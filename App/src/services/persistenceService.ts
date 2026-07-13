@@ -1,5 +1,7 @@
 const STORAGE_PREFIX = 'performance-intelligence'
 
+// Browser persistence is limited to UI preferences and legacy migration backups.
+// PostgreSQL remains the durable source of truth for workouts, imports, and journals.
 export function readPersistedState<T>(key: string): T | null {
   if (typeof window === 'undefined') {
     return null
@@ -25,14 +27,6 @@ export function writePersistedState<T>(key: string, value: T): void {
   window.localStorage.setItem(`${STORAGE_PREFIX}:${key}`, JSON.stringify(value))
 }
 
-export function clearPersistedState(key: string): void {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  window.localStorage.removeItem(`${STORAGE_PREFIX}:${key}`)
-}
-
 export function clearAllPersistedState(): void {
   if (typeof window === 'undefined') {
     return
@@ -42,4 +36,3 @@ export function clearAllPersistedState(): void {
     .filter((key) => key.startsWith(`${STORAGE_PREFIX}:`))
     .forEach((key) => window.localStorage.removeItem(key))
 }
-

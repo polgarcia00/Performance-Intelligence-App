@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import type { ImportPreview } from '@/types'
-import { loadMockZeppImport } from '@/services/importService'
+import { fetchMockZeppExportFiles } from '@/services/mockDataService'
 import { confirmImportPreview, previewImportFileContents, previewImportFiles } from '@/services/importApiService'
 import { useImportHistoryStore } from '@/stores/importHistoryStore'
 import { usePerformanceStore } from '@/stores/performanceStore'
@@ -62,7 +62,7 @@ export function useDataImport() {
     isLoading.value = true
 
     try {
-      setPreview(await previewImportFileContents(await loadMockZeppImport()))
+      setPreview(await previewImportFileContents(await fetchMockZeppExportFiles()))
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : 'Unable to load sample import.'
     } finally {

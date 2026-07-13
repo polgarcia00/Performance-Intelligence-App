@@ -5,7 +5,7 @@ import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
 import BaseEmptyState from '@/components/base/BaseEmptyState.vue'
-import TrainingLoadChart from '@/components/charts/TrainingLoadChart.vue'
+import WorkoutTrendChart from '@/components/charts/WorkoutTrendChart.vue'
 import PageContainer from '@/components/layout/PageContainer.vue'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import { useImportHistoryStore } from '@/stores/importHistoryStore'
@@ -83,7 +83,7 @@ const weeklyLoadData = computed(() => ({
               <strong>{{ formatDuration(weeklyWorkoutDuration) }}</strong>
               <span>{{ importedWorkoutCount }} imported workouts in your journal</span>
             </div>
-            <TrainingLoadChart :labels="weeklyLoadData.labels" :values="weeklyLoadData.values" />
+            <WorkoutTrendChart title="Weekly sport distribution" :labels="weeklyLoadData.labels" :values="weeklyLoadData.values" />
           </BaseCard>
         </div>
 

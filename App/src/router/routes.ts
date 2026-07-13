@@ -24,7 +24,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/workouts/add-missing',
     name: 'add-missing-workout',
-    component: () => import('@/views/LogWorkoutView.vue'),
+    component: () => import('@/views/AddMissingWorkoutView.vue'),
     meta: { label: 'Add Missing Workout' },
   },
   {
@@ -54,9 +54,5 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/settings/import',
     redirect: '/settings',
-  },
-  {
-    path: '/log/workout',
-    redirect: '/workouts/add-missing',
   },
 ]

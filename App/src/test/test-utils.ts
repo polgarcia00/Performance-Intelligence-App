@@ -33,7 +33,7 @@ export async function mountWithAppContext(
       plugins: [pinia, router, ...(options.global?.plugins ?? [])],
       stubs: {
         SportTrendChart: true,
-        TrainingLoadChart: true,
+        WorkoutTrendChart: true,
         ...(options.global?.stubs ?? {}),
       },
     },
@@ -42,4 +42,3 @@ export async function mountWithAppContext(
   await flushPromises()
   return { wrapper, router, pinia }
 }
-

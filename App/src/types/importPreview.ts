@@ -1,4 +1,3 @@
-import type { WorkoutBundle } from './workout'
 import type { ZeppParsedFileSummary, ZeppUnknownWorkout, ZeppWorkoutTypeCount } from './zepp'
 
 export type ImportedDataType =
@@ -32,7 +31,7 @@ export interface ImportPreviewSummary {
   unknown: number
 }
 
-export interface NormalizedImportData extends WorkoutBundle {
+export interface NormalizedImportPreviewData {
   unknownWorkouts: ZeppUnknownWorkout[]
 }
 
@@ -46,7 +45,7 @@ export interface ImportPreview {
   summary: ImportPreviewSummary
   errors: ImportError[]
   duplicates: ImportDuplicate[]
-  normalized: NormalizedImportData
+  normalized: NormalizedImportPreviewData
   sourceFiles: ZeppParsedFileSummary[]
   workoutTypeCounts: ZeppWorkoutTypeCount[]
   ignoredFiles: string[]

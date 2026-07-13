@@ -18,7 +18,7 @@ export interface WeeklyReport {
   bestPerformance: string
   weakestArea: string
   comparisonToPreviousWeek: string
-  trainingLoadSummary: string
+  weekStorySummary: string
   runningSummary: string
   strengthSummary: string
   basketballSummary: string

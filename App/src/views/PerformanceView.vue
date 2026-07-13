@@ -6,7 +6,7 @@ import BaseCard from '@/components/base/BaseCard.vue'
 import BaseEmptyState from '@/components/base/BaseEmptyState.vue'
 import BaseTabs from '@/components/base/BaseTabs.vue'
 import SportTrendChart from '@/components/charts/SportTrendChart.vue'
-import TrainingLoadChart from '@/components/charts/TrainingLoadChart.vue'
+import WorkoutTrendChart from '@/components/charts/WorkoutTrendChart.vue'
 import PageContainer from '@/components/layout/PageContainer.vue'
 import TrendMetricCard from '@/components/performance/TrendMetricCard.vue'
 import { usePerformanceOverview } from '@/composables/usePerformanceOverview'
@@ -23,7 +23,7 @@ const tabs = [
 ]
 
 const performanceStore = usePerformanceStore()
-const { runningSummary, strengthSummary, basketballSummary, trendSummary, trainingLoad, records } = usePerformanceOverview()
+const { runningSummary, strengthSummary, basketballSummary, trendSummary, records } = usePerformanceOverview()
 
 onMounted(() => {
   void performanceStore.loadBackendAnalysis()
@@ -130,12 +130,12 @@ onMounted(() => {
 
     <section v-if="activeTab === 'trends'" class="section-stack">
       <div class="card-grid">
-        <TrendMetricCard title="Total load" :value="trainingLoad?.totalLoad ?? 0" description="Current week load points." />
-        <TrendMetricCard title="Load ratio" :value="trainingLoad?.acuteChronicRatio ?? 0" description="Acute load divided by chronic load." />
-        <TrendMetricCard title="Chronic load" :value="trainingLoad?.chronicLoad ?? 0" description="Recent baseline load." />
+        <TrendMetricCard title="Trend volume" :value="trendSummary.totalDurationMinutes" format="duration" description="Imported workout duration from backend trends." />
+        <TrendMetricCard title="Trend sessions" :value="trendSummary.sessionCount" description="Sessions represented in backend trend rows." />
+        <TrendMetricCard title="Sports represented" :value="trendSummary.sportCount" description="Sports represented in the current trend response." />
       </div>
       <BaseCard title="Training trend" subtitle="Weekly imported workout duration from backend analysis">
-        <TrainingLoadChart :labels="trendSummary.labels" :values="trendSummary.values" />
+        <WorkoutTrendChart title="Weekly workout duration" :labels="trendSummary.labels" :values="trendSummary.values" />
         <div class="list-stack">
           <article v-for="item in trendSummary.history" :key="item.id">
             <strong>{{ item.title }}</strong>

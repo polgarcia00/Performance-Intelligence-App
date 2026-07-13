@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Insight, PersonalRecord, TrainingLoad, WeeklyReport } from '@/types'
+import type { PersonalRecord, WeeklyReport } from '@/types'
 import {
   fetchBackendPerformanceAnalysis,
   fetchBasketballPerformance,
@@ -9,9 +9,7 @@ import {
 } from '@/services/performanceApiService'
 
 interface PerformanceState {
-  trainingLoad: TrainingLoad | null
   records: PersonalRecord[]
-  insights: Insight[]
   weeklyReport: WeeklyReport | null
   runningPerformance: any | null
   strengthPerformance: any | null
@@ -24,9 +22,7 @@ interface PerformanceState {
 
 export const usePerformanceStore = defineStore('performance', {
   state: (): PerformanceState => ({
-    trainingLoad: null,
     records: [],
-    insights: [],
     weeklyReport: null,
     runningPerformance: null,
     strengthPerformance: null,

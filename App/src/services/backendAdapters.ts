@@ -283,13 +283,6 @@ export function adaptImportPreview(preview: any): ImportPreview {
     })),
     duplicates,
     normalized: {
-      workouts: [],
-      runningSessions: [],
-      strengthSessions: [],
-      basketballSessions: [],
-      runningEnrichments: [],
-      strengthEnrichments: [],
-      basketballEnrichments: [],
       unknownWorkouts: (preview.unknownSportCodes ?? []).map((code: string) => ({ typeCode: code })),
     },
     sourceFiles,

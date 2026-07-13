@@ -23,7 +23,7 @@ onMounted(() => {
       <div class="summary-list">
         <p>{{ weeklyReport?.workoutsCompleted ?? 0 }} imported workouts · {{ formatDuration(weeklyReport?.totalTrainingTimeMinutes ?? 0) }} training time</p>
         <p>{{ weeklyReport?.comparisonToPreviousWeek }}</p>
-        <p>{{ weeklyReport?.trainingLoadSummary }}</p>
+        <p>{{ weeklyReport?.weekStorySummary }}</p>
       </div>
     </BaseCard>
 
