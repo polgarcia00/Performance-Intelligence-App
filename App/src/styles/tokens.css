@@ -1,0 +1,38 @@
+:root {
+  color-scheme: dark;
+  --color-bg: #081011;
+  --color-surface: #111b1e;
+  --color-surface-strong: #172326;
+  --color-surface-muted: #203033;
+  --color-border: rgba(221, 238, 233, 0.12);
+  --color-text: #f2faf7;
+  --color-text-muted: #a8bbb5;
+  --color-accent: #35d2a4;
+  --color-running: #4fb3ff;
+  --color-strength: #ff6f61;
+  --color-basketball: #ffb33f;
+  --color-positive: #73df7f;
+  --color-warning: #ffd166;
+  --color-risk: #ff5c7a;
+  --shadow-card: 0 18px 60px rgba(0, 0, 0, 0.22);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.35rem;
+  --font-size-2xl: 1.85rem;
+  --font-size-3xl: 2.5rem;
+  --layout-max: 1280px;
+  --nav-width: 260px;
+}
