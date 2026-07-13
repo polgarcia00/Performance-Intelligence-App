@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # My Performance Journal
 
 My Performance Journal is an athletic diary that extends Zepp.
@@ -86,4 +85,3 @@ npm run dev
 ```sh
 npm run build
 ```
->>>>>>> a9310cdb1dc0a47e975514cea97e437a53679ff9
